@@ -3,6 +3,7 @@ class Player
     @image = Gosu::Image.new(window, path, false)
     @x = @y = @vel_x = @vel_y = @angle = 0.0
     @score = 0
+    @last_fire = 0
   end
 
   def warp(x, y)
@@ -22,10 +23,13 @@ class Player
     @vel_y += Gosu::offset_y(@angle, 0.5)
   end
 
-  def fire(balls)
-    balls << Ball.new(@x, @y,
-                      @vel_x + Gosu::offset_x(@angle, 5),
-                      @vel_y + Gosu::offset_y(@angle, 5))
+  def fire(balls, time)
+    if time - @last_fire > 100
+      balls << Ball.new(@x, @y,
+                        @vel_x + Gosu::offset_x(@angle, 5),
+                        @vel_y + Gosu::offset_y(@angle, 5))
+     @last_fire = time
+    end
   end
 
   def move

@@ -35,16 +35,18 @@ class GameWindow < Gosu::Window
   end
 
   def update
+    time = Gosu::milliseconds
+
     @p1.turn_left if button_down? Gosu::KbLeft
     @p1.turn_right if button_down? Gosu::KbRight
     @p1.accelerate if button_down? Gosu::KbUp
-    @p1.fire(@balls) if button_down? Gosu::KbRightShift
+    @p1.fire(@balls, time) if button_down? Gosu::KbRightShift
     @p1.move
 
     @p2.turn_left if button_down? @p2_left
     @p2.turn_right if button_down?  @p2_right
     @p2.accelerate if button_down? @p2_accel
-    @p2.fire(@balls) if button_down? @p2_fire
+    @p2.fire(@balls, time) if button_down? @p2_fire
     @p2.move
 
     @balls.each{|b| b.move }
