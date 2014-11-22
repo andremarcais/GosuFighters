@@ -15,7 +15,7 @@ class Ball
     if age > 2750
       @@exploded.draw_rot(@x, @y, 1, 0)
     else
-       factor = 1.2 * (1.0 - age.to_f / 3000)
+       factor = 1.0 - age.to_f / 5000
       @@img.draw_rot(@x, @y, 1, 0, 0.5, 0.5, factor, factor)
     end
   end
