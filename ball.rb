@@ -16,7 +16,7 @@ class Ball
       @@exploded.draw_rot(@x, @y, 1, 0)
     else
        factor = 1.0 - age.to_f / 5000
-      @@img.draw_rot(@x, @y, 1, 0, 0.5, 0.5, factor, factor)
+      @@img.draw_rot(@x, @y, Z_PLAYER, 0, 0.5, 0.5, factor, factor)
     end
   end
 

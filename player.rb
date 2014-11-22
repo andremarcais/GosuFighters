@@ -53,6 +53,6 @@ class Player
   end
 
   def draw
-    @image.draw_rot(@x, @y, 1, @angle)
+    @image.draw_rot(@x, @y, Z_PLAYER, @angle)
   end
 end
