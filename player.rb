@@ -34,7 +34,10 @@ class Player
                         @vel_x + Gosu::offset_x(@angle, 5),
                         @vel_y + Gosu::offset_y(@angle, 5),
                         time)
-     @last_fire = time
+
+      @vel_x -= Gosu::offset_x(@angle, 0.1)
+      @vel_y -= Gosu::offset_y(@angle, 0.1)      
+      @last_fire = time
       @fire_right = !@fire_right
     end
   end
