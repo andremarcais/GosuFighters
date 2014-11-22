@@ -27,7 +27,8 @@ class Player
     if time - @last_fire > 100
       balls << Ball.new(@x, @y,
                         @vel_x + Gosu::offset_x(@angle, 5),
-                        @vel_y + Gosu::offset_y(@angle, 5))
+                        @vel_y + Gosu::offset_y(@angle, 5),
+                        time)
      @last_fire = time
     end
   end
