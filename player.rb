@@ -4,6 +4,7 @@ class Player
     @x = @y = @vel_x = @vel_y = @angle = 0.0
     @score = 0
     @last_fire = 0
+    @fire_right = true
   end
 
   def warp(x, y)
@@ -25,11 +26,16 @@ class Player
 
   def fire(balls, time)
     if time - @last_fire > 100
-      balls << Ball.new(@x, @y,
+      ball_angle = @angle + (@fire_right ? 90 : -90)
+      x, y = @x, @y
+      x += Gosu::offset_x(ball_angle, @image.width/2)
+      y += Gosu::offset_y(ball_angle, @image.width/2)
+      balls << Ball.new(x, y,
                         @vel_x + Gosu::offset_x(@angle, 5),
                         @vel_y + Gosu::offset_y(@angle, 5),
                         time)
      @last_fire = time
+      @fire_right = !@fire_right
     end
   end
 
