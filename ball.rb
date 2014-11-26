@@ -1,22 +1,35 @@
 class Ball
-  def initialize(x ,y, vx, vy, time)
+  attr_reader :x, :y, :player
+
+  def self.radius
+    @@img.width/2
+  end
+
+  def radius
+    @factor * @@img.width/2
+  end
+
+  def initialize(x ,y, vx, vy, time, player)
     @x, @y, @vx, @vy = x, y, vx, vy
     @creation_time = time
+    @factor = 1
+    @age = 0
+    @player = player
   end
 
   def move(time)
     @x = (@x + @vx) % $width
     @y = (@y + @vy) % $height
-    return time - @creation_time > 3000
+    @age = time - @creation_time
+    @factor = 1.0 - @age.to_f / 5000
+    return @age > 3000
   end
 
   def draw(time)
-    age = time - @creation_time
-    if age > 2750
+    if @age > 2750
       @@exploded.draw_rot(@x, @y, 1, 0)
     else
-       factor = 1.0 - age.to_f / 5000
-      @@img.draw_rot(@x, @y, Z_PLAYER, 0, 0.5, 0.5, factor, factor)
+      @@img.draw_rot(@x, @y, Z_PLAYER, 0, 0.5, 0.5, @factor, @factor)
     end
   end
 

@@ -9,4 +9,9 @@ class HpBar
   def draw
     @image.draw(@x, @y, 1, @percent/100, Z_BAR)
   end
+
+  def sub(x)
+    @percent -= x
+    @percent = 0.0 if @percent < 0
+  end
 end

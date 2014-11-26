@@ -21,21 +21,21 @@ class GameWindow < Gosu::Window
     @scale_x = $width.to_f/@bg.width
     @scale_y = $height.to_f/@bg.height
 
-    @p1 = Player.new(self, "Starfighter1.png")
+    @p1_hp = HpBar.new(self, "Hpp1.png", 7 , 7)
+    @p1 = Player.new(self, "Starfighter1.png", @p1_hp)
     @p1.warp($width / 3, $height / 2)
     @p1_left = char_to_button_id("a")
     @p1_right = char_to_button_id("d")
     @p1_accel =  char_to_button_id("w")
     @p1_fire = char_to_button_id(" ")
-    @p1_hp = HpBar.new(self, "Hpp1.png", 7 , 7)
 
-    @p2 = Player.new(self, "Starfighter2.png")
+    @p2_hp = HpBar.new(self, "Hpp2.png", self.width-107 , 7)
+    @p2 = Player.new(self, "Starfighter2.png", @p2_hp)
     @p2.warp(2 * $width / 3, $height / 2)
     @p2_left = Gosu::KbLeft
     @p2_right = Gosu::KbRight
     @p2_accel = Gosu::KbUp
     @p2_fire = Gosu::KbRightControl
-    @p2_hp = HpBar.new(self, "Hpp2.png", self.width-107 , 7)
 
     Ball.set_img(Gosu::Image.new(self, "magic ball.png", false),
                  Gosu::Image.new(self, "lightning ball.png", false))
@@ -46,6 +46,7 @@ class GameWindow < Gosu::Window
 
   def update
     @time = Gosu::milliseconds
+    @balls.reject!{|b| @p1.hit(b) || @p2.hit(b) || b.move(@time) }
 
     @p1.turn_left if button_down? @p1_left
     @p1.turn_right if button_down? @p1_right
@@ -59,7 +60,7 @@ class GameWindow < Gosu::Window
     @p2.fire(@balls, @time) if button_down? @p2_fire
     @p2.move
 
-    @balls.reject!{|b| b.move(@time) }
+    
   end
 
   def draw
