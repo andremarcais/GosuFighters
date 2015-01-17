@@ -15,6 +15,7 @@ class Ball
     @factor = 1
     @age = 0
     @player = player
+    @@fire_sound.play
   end
 
   def move(time)
@@ -33,8 +34,14 @@ class Ball
     end
   end
 
-  def self.set_img(img1, img2)
+  def explode_sound
+    @@explode_sound.play
+  end
+
+  def self.set_img(img1, img2, fire_sound, explode_sound)
     @@img = img1
     @@exploded = img2
+    @@fire_sound = fire_sound
+    @@explode_sound = explode_sound
   end
 end
