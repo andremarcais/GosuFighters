@@ -17,11 +17,20 @@ class HpBar
     @percent = 0.0 if @percent < 0
   end
 
+  def add(x)
+    @percent += x
+    @percent = 0.0 if @percent < 0
+  end
+
   def height
     return @image.height
   end
 
   def width
     return @image.width
+  end
+
+  def +_stuff
+    @percent = @percent + 10
   end
 end

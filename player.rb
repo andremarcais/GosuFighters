@@ -1,5 +1,5 @@
 class Player
-  def initialize(window, path, hp, amo)
+  def initialize(window, path, hp, amo , shield)
     @image = Gosu::Image.new(window, path, false)
     @x = @y = @vel_x = @vel_y = @angle = 0.0
     @score = 0
@@ -8,6 +8,7 @@ class Player
     @hp = hp
     @amo = amo
     @dead = false
+    @shield = shield
   end
 
   def hit(b)
@@ -21,16 +22,34 @@ class Player
     end
   end
 
+  def catch(p)
+    if Gosu::distance(@x, @y, p.x, p.y) < @image.width/2 + p.radius && !@dead
+      p.collect_sound
+      if p.type == 0
+        @hp.add(rand(10..20))
+      elsif p.type == 1
+        @amo.add(rand(10..20))
+      elsif p.type == 2
+        @shield.add(25)
+      elsif p.type == 3
+        p "Missil will come in next up date"
+      end
+      return true
+    else
+      return false
+    end
+  end
+    
   def warp(x, y)
     @x, @y = x, y
   end
-
+  
   def turn_left
-    @angle -= 2
+    @angle -= 3.5
   end
 
   def turn_right
-    @angle += 2
+    @angle += 3.5
   end
 
   def accelerate
