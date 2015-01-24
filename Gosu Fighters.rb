@@ -8,6 +8,7 @@ require 'hp'
 require 'ball'
 require 'Resource_Ship'
 require 'Power_Up'
+require 'flame'
 
 $width = Gosu::screen_width
 $height = Gosu::screen_height
@@ -26,9 +27,9 @@ class GameWindow < Gosu::Window
 
     @p1_hp = HpBar.new(self, "Hpp1.png", 14 , 14, false)
     @p1_amo = HpBar.new(self, "Amo_Bar.png", 14 , 14+@p1_hp.height, false)
-    @p1_sheiled = HpBar.new(self, "Sheiled_bar.png", 14 , (@p1_hp.height/2)+14+@p1_hp.height, false)
+    @p1_shield = HpBar.new(self, "Shield_bar.png", 14 , (@p1_hp.height/2)+14+@p1_hp.height, false)
     
-    @p1 = Player.new(self, "Starfighter1.png", @p1_hp, @p1_amo , @p1_sheiled)
+    @p1 = Player.new(self, "Starfighter1.png", @p1_hp, @p1_amo , @p1_shield)
     @p1.warp($width / 3, $height / 2)
     @p1_left = char_to_button_id("a")
     @p1_right = char_to_button_id("d")
@@ -37,9 +38,9 @@ class GameWindow < Gosu::Window
 
     @p2_hp = HpBar.new(self, "Hpp2.png", self.width - 14, 14, true)
     @p2_amo = HpBar.new(self, "Amo_Bar.png", self.width - 14 , 14+@p1_hp.height , true)
-    @p2_sheiled = HpBar.new(self, "Sheiled_bar.png", 14 , (@p1_hp.height/2)+14+@p1_hp.height, false)
+    @p2_shield = HpBar.new(self, "Shield_bar.png", self.width - 14 , (@p1_hp.height/2)+14+@p1_hp.height, true)
 
-    @p2 = Player.new(self, "Starfighter2.png", @p2_hp, @p2_amo, @p2_sheiled)
+    @p2 = Player.new(self, "Starfighter2.png", @p2_hp, @p2_amo, @p2_shield)
     @p2.warp(2 * $width / 3, $height / 2)
     @p2_left = Gosu::KbLeft
     @p2_right = Gosu::KbRight
@@ -59,10 +60,12 @@ class GameWindow < Gosu::Window
     R_Ship.set_img(Gosu::Image.new(self , "Resource Ship.png" , false))
 
     Power_up.set_img(self)
-
+    
+    Flame.set_img(self)
 
     @balls = []
     @power_ups = []
+    @flames = []
 
     @time = Gosu::milliseconds
   end
@@ -74,13 +77,17 @@ class GameWindow < Gosu::Window
 
     @p1.turn_left if button_down? @p1_left
     @p1.turn_right if button_down? @p1_right
-    @p1.accelerate if button_down? @p1_accel
+    if button_down? @p1_accel
+      @flames << @p1.accelerate
+    end
     @p1.fire(@balls, @time) if button_down? @p1_fire
     @p1.move
 
     @p2.turn_left if button_down? @p2_left
     @p2.turn_right if button_down?  @p2_right
-    @p2.accelerate if button_down? @p2_accel
+    if button_down? @p2_accel
+      @flames << @p2.accelerate
+    end 
     @p2.fire(@balls, @time) if button_down? @p2_fire
     @p2.move
 
@@ -95,7 +102,7 @@ class GameWindow < Gosu::Window
       end
     }
     if @r_ship.nil?
-      @r_ship = R_Ship.new if rand(2000) == 0
+      @r_ship = R_Ship.new if rand(2000) == 0 || @p1.amo.percent <= 0 || @p2.amo.percent <= 0
     else
       if !@r_ship.move
         @r_ship = nil
@@ -104,6 +111,7 @@ class GameWindow < Gosu::Window
       end
     end
     @power_ups.each{ |pu| pu.move }
+    @flames.reject!{|f| f.update }
   end
   
   def draw
@@ -117,6 +125,9 @@ class GameWindow < Gosu::Window
     @bg.draw(0, 0, 0, @scale_x, @scale_y)
     @r_ship.draw if !@r_ship.nil?
     @power_ups.each{ |pu| pu.draw }
+    @p1_shield.draw
+    @p2_shield.draw
+    @flames.each{|f| f.draw}
   end
 
   def button_down(id)

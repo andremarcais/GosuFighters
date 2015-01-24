@@ -17,6 +17,10 @@ class HpBar
     @percent = 0.0 if @percent < 0
   end
 
+  def set(x)
+    @percent = x
+  end
+
   def add(x)
     @percent += x
     @percent = 0.0 if @percent < 0

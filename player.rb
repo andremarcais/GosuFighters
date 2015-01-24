@@ -1,4 +1,8 @@
+require 'flame'
+
 class Player
+  attr_reader :amo
+
   def initialize(window, path, hp, amo , shield)
     @image = Gosu::Image.new(window, path, false)
     @x = @y = @vel_x = @vel_y = @angle = 0.0
@@ -13,7 +17,9 @@ class Player
 
   def hit(b)
     if b.player != self && Gosu::distance(@x, @y, b.x, b.y) < @image.width/2 + b.radius && !@dead
-      @hp.sub(5)
+      @hp.sub(5-@shield.percent/25)
+      @shield.sub(10) if @shield.percent > 0
+      @shield.set(0) if @shield.percent < 0
       b.explode_sound
       @dead = true if @hp.percent <= 0
       true
@@ -56,6 +62,8 @@ class Player
     return if @dead
     @vel_x += Gosu::offset_x(@angle, 0.5)
     @vel_y += Gosu::offset_y(@angle, 0.5)
+
+    return Flame.new( @x - Gosu::offset_x(@angle, @image.width/2) , @y - Gosu::offset_y(@angle, @image.height/2)  , 0 , 0 )
   end
 
   def fire(balls, time)

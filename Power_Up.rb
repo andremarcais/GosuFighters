@@ -47,7 +47,7 @@ attr_reader :x , :y
     @@imgs = [
               Gosu::Image.new(window , "Health Power Up.png" , false),
               Gosu::Image.new(window , "Amo Power Up.png" , false),
-              Gosu::Image.new(window , "Shieled Power Up.png" , false),
+              Gosu::Image.new(window , "Shield Power Up.png" , false),
               Gosu::Image.new(window , "Missil Power Up.png" , false),
              ]
     @@shine = [
