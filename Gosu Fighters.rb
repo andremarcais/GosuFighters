@@ -9,6 +9,8 @@ require 'ball'
 require 'Resource_Ship'
 require 'Power_Up'
 require 'flame'
+require 'Explosion'
+require 'Missil'
 
 $width = Gosu::screen_width
 $height = Gosu::screen_height
@@ -35,6 +37,7 @@ class GameWindow < Gosu::Window
     @p1_right = char_to_button_id("d")
     @p1_accel =  char_to_button_id("w")
     @p1_fire = char_to_button_id(" ")
+    @p1_missil = Gosu::KbLeftShift
 
     @p2_hp = HpBar.new(self, "Hpp2.png", self.width - 14, 14, true)
     @p2_amo = HpBar.new(self, "Amo_Bar.png", self.width - 14 , 14+@p1_hp.height , true)
@@ -46,6 +49,7 @@ class GameWindow < Gosu::Window
     @p2_right = Gosu::KbRight
     @p2_accel = Gosu::KbUp
     @p2_fire = Gosu::KbRightControl
+    @p2_missil = Gosu::KbRightAlt
 
     Player.set_img(Gosu::Image.new(self, "magic ball.png", false),
                  Gosu::Image.new(self, "lightning ball.png", false),
@@ -63,32 +67,53 @@ class GameWindow < Gosu::Window
     
     Flame.set_img(self)
 
+    Missil.set_img(self ,  Gosu::Sample.new(self, "Explosion.ogg"))
+
+    Explode.set_data(self, Gosu::Sample.new(self, "Explosion.ogg"))
+
     @balls = []
     @power_ups = []
     @flames = []
+    @boom = []
+    @missils = []
 
     @time = Gosu::milliseconds
   end
 
   def update
     @time = Gosu::milliseconds
-    @balls.reject!{|b| @p1.hit(b) || @p2.hit(b) || b.move(@time) }
+    
+    @balls.reject!{|b| @p1.hit(b, @boom) || @p2.hit(b, @boom) || @missils.any?{|m| m.hit(b, @boom) } || b.move(@time) }
     @power_ups.reject!{|b| @p1.catch(b) || @p2.catch(b) }
+    @missils.reject!{|m|
+      if @p1.hit(m) || @p2.hit(m) || m.hp <= 0
+        explosion = Explode.new(m.x + Gosu::offset_x(m.angle, m.height / 2),
+                                m.y + Gosu::offset_y(m.angle, m.height / 2),
+                                4 , 2.75 , 20)
+        @boom << explosion
+        @p1.hit(explosion)
+        @p2.hit(explosion)
+        true
+      else
+        @flames << m.move
+        false
+      end
+    }
+
+    @boom.reject!{|b| b.update}
 
     @p1.turn_left if button_down? @p1_left
     @p1.turn_right if button_down? @p1_right
-    if button_down? @p1_accel
-      @flames << @p1.accelerate
-    end
+    @p1.accelerate(@flames) if button_down? @p1_accel
     @p1.fire(@balls, @time) if button_down? @p1_fire
+    @p1.fire_missil(@missils , @p2) if button_down? @p1_missil
     @p1.move
 
     @p2.turn_left if button_down? @p2_left
     @p2.turn_right if button_down?  @p2_right
-    if button_down? @p2_accel
-      @flames << @p2.accelerate
-    end 
+    @p2.accelerate(@flames) if button_down? @p2_accel
     @p2.fire(@balls, @time) if button_down? @p2_fire
+    @p2.fire_missil(@missils , @p1) if button_down? @p2_missil
     @p2.move
 
     @power_ups.each { |p|
@@ -127,7 +152,9 @@ class GameWindow < Gosu::Window
     @power_ups.each{ |pu| pu.draw }
     @p1_shield.draw
     @p2_shield.draw
+    @boom.each{|b| b.draw}
     @flames.each{|f| f.draw}
+    @missils.each{|m| m.draw}
   end
 
   def button_down(id)

@@ -1,10 +1,13 @@
 require 'flame'
+require 'Missil'
 
 class Player
-  attr_reader :amo
+  attr_reader :amo , :x , :y, :angle , :vel_x , :vel_y , :damage
 
   def initialize(window, path, hp, amo , shield)
-    @image = Gosu::Image.new(window, path, false)
+    @img_set = Gosu::Image.load_tiles(window , path , 50 , 50 , false)
+    raise "Not enough tiles (#{@img_set.size})" if @img_set.size != 4
+    @image = @img_set[0]
     @x = @y = @vel_x = @vel_y = @angle = 0.0
     @score = 0
     @last_fire = 0
@@ -13,19 +16,44 @@ class Player
     @amo = amo
     @dead = false
     @shield = shield
+    @nb_missils = 1
+    @damage = 25
   end
 
-  def hit(b)
+  def to_s
+    "<Player #{@x} #{@y}>"
+  end
+
+  def radius
+    return @image.width/2
+  end
+
+  def hit(b, boom = nil)
     if b.player != self && Gosu::distance(@x, @y, b.x, b.y) < @image.width/2 + b.radius && !@dead
-      @hp.sub(5-@shield.percent/25)
+      boom << Explode.new(b.x + b.radius  , b.y + b.radius , 0.5 , 1 , 0) if !boom.nil?
+      @hp.sub([b.damage-@shield.percent/25, 0].max)
       @shield.sub(10) if @shield.percent > 0
       @shield.set(0) if @shield.percent < 0
       b.explode_sound
       @dead = true if @hp.percent <= 0
+      if @hp.percent <= 25
+        @image = @img_set[3]
+      elsif @hp.percent <= 50
+        @image = @img_set[2]
+      elsif @hp.percent <= 75
+        @image = @img_set[1]
+      else
+        @image = @img_set[0]
+      end
+      raise "Bad image" if @image.nil?
       true
     else
       false
     end
+  end
+
+  def boom(b , window)
+    return b.player != self && Gosu::distance(@x, @y, b.x, b.y) < @image.width/2 + b.radius && !@dead
   end
 
   def catch(p)
@@ -38,7 +66,7 @@ class Player
       elsif p.type == 2
         @shield.add(25)
       elsif p.type == 3
-        p "Missil will come in next up date"
+        @nb_missils += 1
       end
       return true
     else
@@ -58,12 +86,12 @@ class Player
     @angle += 3.5
   end
 
-  def accelerate
+  def accelerate(flames)
     return if @dead
     @vel_x += Gosu::offset_x(@angle, 0.5)
     @vel_y += Gosu::offset_y(@angle, 0.5)
 
-    return Flame.new( @x - Gosu::offset_x(@angle, @image.width/2) , @y - Gosu::offset_y(@angle, @image.height/2)  , 0 , 0 )
+    flames << Flame.new( @x - Gosu::offset_x(@angle, @image.width/2) , @y - Gosu::offset_y(@angle, @image.height/2)  , 0 , 0 )
   end
 
   def fire(balls, time)
@@ -83,6 +111,12 @@ class Player
       @fire_right = !@fire_right
       @amo.sub(1)
     end
+  end
+
+  def fire_missil(m , t)
+    return if @nb_missils == 0
+    @nb_missils -= 1
+    m << Missil.new(self, t)
   end
 
   def move

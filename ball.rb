@@ -1,5 +1,5 @@
 class Ball
-  attr_reader :x, :y, :player
+  attr_reader :x, :y, :player , :range
 
   def self.radius
     @@img.width/2
@@ -16,7 +16,10 @@ class Ball
     @age = 0
     @player = player
     @@fire_sound.play
+    @range = 0
   end
+
+  def damage; 5 * @factor; end
 
   def move(time)
     @x = (@x + @vx) % $width
@@ -28,7 +31,7 @@ class Ball
 
   def draw(time)
     if @age > 2750
-      @@exploded.draw_rot(@x, @y, 1, 0)
+      @@exploded.draw_rot(@x, @y, 1, 0) 
     else
       @@img.draw_rot(@x, @y, Z_PLAYER, 0, 0.5, 0.5, @factor, @factor)
     end
