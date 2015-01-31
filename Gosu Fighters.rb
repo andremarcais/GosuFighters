@@ -95,7 +95,7 @@ class GameWindow < Gosu::Window
         @p2.hit(explosion)
         true
       else
-        @flames << m.move
+        m.move(@flames)
         false
       end
     }

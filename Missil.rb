@@ -12,7 +12,7 @@ class Missil
     @hp = 15
     @player = player
     @target = target
-    @range = 200
+    @fuel = 1200
   end
   
   def radius; @@img.width; end
@@ -27,23 +27,29 @@ class Missil
     @angle += 1
   end
   
-  def move
-    target_angle = Gosu::angle(@x , @y , @target.x , @target.y)
-    if Gosu::angle_diff(@angle , target_angle) > 0
-      turn_right
+  def move(flames)
+    if @fuel > 0
+      target_angle = Gosu::angle(@x , @y , @target.x , @target.y)
+      if Gosu::angle_diff(@angle , target_angle) > 0
+        turn_right
+      else
+        turn_left
+      end
+      
+      @fuel -= 1
+      
+      @vel_x = Gosu::offset_x(@angle, @vel)
+      @vel_y = Gosu::offset_y(@angle, @vel)
+      flames << Flame.new( @x - Gosu::offset_x(@angle, @@img.height/2) , @y - Gosu::offset_y(@angle, @@img.height/2)  , 0 , 0 )
     else
-      turn_left
+      @vel_x *= 0.95
+      @vel_y *= 0.95
     end
-    
-    vel_x = Gosu::offset_x(@angle, @vel)
-    vel_y = Gosu::offset_y(@angle, @vel)
-
-
-    @x += vel_x
-    @y += vel_y
+      
+    @x += @vel_x
+    @y += @vel_y
     @x %= $width
     @y %= $height
-    return Flame.new( @x - Gosu::offset_x(@angle, @@img.height/2) , @y - Gosu::offset_y(@angle, @@img.height/2)  , 0 , 0 )
   end
 
   def explode_sound
