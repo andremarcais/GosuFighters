@@ -6,8 +6,6 @@ class Player
 
   def initialize(window, path, hp, amo , shield)
     @img_set = Gosu::Image.load_tiles(window , path , 50 , 50 , false)
-    raise "Not enough tiles (#{@img_set.size})" if @img_set.size != 4
-    @image = @img_set[0]
     @x = @y = @vel_x = @vel_y = @angle = 0.0
     @score = 0
     @last_fire = 0
@@ -18,6 +16,8 @@ class Player
     @shield = shield
     @nb_missils = 1
     @damage = 25
+    @last_fire_missil = 0
+    update_img
   end
 
   def to_s
@@ -28,6 +28,10 @@ class Player
     return @image.width/2
   end
 
+  def update_img
+    @image = @img_set[@img_set.size - 1 - (@img_set.size * [@hp.percent, 99].min / 100.0).floor]
+  end
+
   def hit(b, boom = nil)
     if b.player != self && Gosu::distance(@x, @y, b.x, b.y) < @image.width/2 + b.radius && !@dead
       boom << Explode.new(b.x + b.radius  , b.y + b.radius , 0.5 , 1 , 0) if !boom.nil?
@@ -36,16 +40,7 @@ class Player
       @shield.set(0) if @shield.percent < 0
       b.explode_sound
       @dead = true if @hp.percent <= 0
-      if @hp.percent <= 25
-        @image = @img_set[3]
-      elsif @hp.percent <= 50
-        @image = @img_set[2]
-      elsif @hp.percent <= 75
-        @image = @img_set[1]
-      else
-        @image = @img_set[0]
-      end
-      raise "Bad image" if @image.nil?
+      update_img
       true
     else
       false
@@ -61,6 +56,7 @@ class Player
       p.collect_sound
       if p.type == 0
         @hp.add(rand(10..20))
+        update_img
       elsif p.type == 1
         @amo.add(rand(10..20))
       elsif p.type == 2
@@ -113,10 +109,13 @@ class Player
     end
   end
 
-  def fire_missil(m , t)
-    return if @nb_missils == 0
-    @nb_missils -= 1
-    m << Missil.new(self, t)
+  def fire_missil(m , t , time)
+    if time - @last_fire_missil > 1000 && @nb_missils > 0 && !@dead
+      return if @nb_missils == 0
+      @nb_missils -= 1
+      m << Missil.new(self, t)
+      @last_fire_missil = time
+    end
   end
 
   def move

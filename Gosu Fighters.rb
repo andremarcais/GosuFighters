@@ -106,14 +106,14 @@ class GameWindow < Gosu::Window
     @p1.turn_right if button_down? @p1_right
     @p1.accelerate(@flames) if button_down? @p1_accel
     @p1.fire(@balls, @time) if button_down? @p1_fire
-    @p1.fire_missil(@missils , @p2) if button_down? @p1_missil
+    @p1.fire_missil(@missils , @p2 , @time) if button_down? @p1_missil
     @p1.move
 
     @p2.turn_left if button_down? @p2_left
     @p2.turn_right if button_down?  @p2_right
     @p2.accelerate(@flames) if button_down? @p2_accel
     @p2.fire(@balls, @time) if button_down? @p2_fire
-    @p2.fire_missil(@missils , @p1) if button_down? @p2_missil
+    @p2.fire_missil(@missils , @p1 , @time) if button_down? @p2_missil
     @p2.move
 
     @power_ups.each { |p|

@@ -9,7 +9,7 @@ class Missil
     @y = player.y + Gosu::offset_y(player.angle , player.radius)
     @vel = 5 + Gosu::distance(0, 0, player.vel_x , player.vel_y)
     @angle = player.angle
-    @hp = 50
+    @hp = 15
     @player = player
     @target = target
     @range = 200
