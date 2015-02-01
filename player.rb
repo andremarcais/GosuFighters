@@ -14,7 +14,7 @@ class Player
     @amo = amo
     @dead = false
     @shield = shield
-    @nb_missils = 1
+    @nb_missils = 0
     @damage = 25
     @last_fire_missil = 0
     update_img
@@ -33,7 +33,7 @@ class Player
   end
 
   def hit(b, boom = nil)
-    if b.player != self && Gosu::distance(@x, @y, b.x, b.y) < @image.width/2 + b.radius && !@dead
+    if b.player != self && Gosu::distance(@x, @y, b.x, b.y) < @image.width/2  + b.radius && !@dead
       boom << Explode.new(b.x + b.radius  , b.y + b.radius , 0.5 , 1 , 0) if !boom.nil?
       @hp.sub([b.damage-@shield.percent/25, 0].max)
       @shield.sub(10) if @shield.percent > 0

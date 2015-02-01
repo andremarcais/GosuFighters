@@ -28,7 +28,7 @@ class GameWindow < Gosu::Window
     @scale_y = $height.to_f/@bg.height
 
     @p1_hp = HpBar.new(self, "Hpp1.png", 14 , 14, false)
-    @p1_amo = HpBar.new(self, "Amo_Bar.png", 14 , 14+@p1_hp.height, false)
+    @p1_amo = HpBar.new(self, "Amo_Bar.png", 14 , 14+@p1_hp.height, false, true)
     @p1_shield = HpBar.new(self, "Shield_bar.png", 14 , (@p1_hp.height/2)+14+@p1_hp.height, false)
     
     @p1 = Player.new(self, "Starfighter1.png", @p1_hp, @p1_amo , @p1_shield)
@@ -40,7 +40,7 @@ class GameWindow < Gosu::Window
     @p1_missil = Gosu::KbLeftShift
 
     @p2_hp = HpBar.new(self, "Hpp2.png", self.width - 14, 14, true)
-    @p2_amo = HpBar.new(self, "Amo_Bar.png", self.width - 14 , 14+@p1_hp.height , true)
+    @p2_amo = HpBar.new(self, "Amo_Bar.png", self.width - 14 , 14+@p1_hp.height , true , true)
     @p2_shield = HpBar.new(self, "Shield_bar.png", self.width - 14 , (@p1_hp.height/2)+14+@p1_hp.height, true)
 
     @p2 = Player.new(self, "Starfighter2.png", @p2_hp, @p2_amo, @p2_shield)
@@ -140,7 +140,7 @@ class GameWindow < Gosu::Window
   end
   
   def draw
-    @p1.draw
+    @p1.draw                  
     @p2.draw
     @p1_hp.draw
     @p2_hp.draw
