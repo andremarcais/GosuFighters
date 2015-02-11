@@ -1,5 +1,6 @@
-require 'flame'
-require 'Missil'
+
+
+
 
 class Player
   attr_reader :amo , :x , :y, :angle , :vel_x , :vel_y , :damage
@@ -17,6 +18,9 @@ class Player
     @nb_missils = 0
     @damage = 25
     @last_fire_missil = 0
+    @last_e_f = 0
+    @part_count = 0
+    @parts = []
     update_img
   end
 
@@ -32,14 +36,20 @@ class Player
     @image = @img_set[@img_set.size - 1 - (@img_set.size * [@hp.percent, 99].min / 100.0).floor]
   end
 
-  def hit(b, boom = nil)
+  def hit(b, boom = nil , parts = nil)
     if b.player != self && Gosu::distance(@x, @y, b.x, b.y) < @image.width/2  + b.radius && !@dead
       boom << Explode.new(b.x + b.radius  , b.y + b.radius , 0.5 , 1 , 0) if !boom.nil?
       @hp.sub([b.damage-@shield.percent/25, 0].max)
       @shield.sub(10) if @shield.percent > 0
       @shield.set(0) if @shield.percent < 0
       b.explode_sound
-      @dead = true if @hp.percent <= 0
+      if @hp.percent <= 0
+        @dead = true 
+        boom << Explode.new(@x , @y , 2 , 4 , 0) if !boom.nil?
+        Accessory.nb_parts.times { |part_count|
+          parts << Accessory.new(@x , @y , @vel_x + rand(1.0..3.0) , @vel_y + rand(1.0..3.0) , part_count)
+        }
+      end
       update_img
       true
     else
@@ -75,19 +85,32 @@ class Player
   end
   
   def turn_left
-    @angle -= 3.5
+    if @hp.percent > 0
+      @angle -= 3.5
+    end
   end
 
   def turn_right
-    @angle += 3.5
+    if @hp.percent > 0
+        @angle += 3.5
+    end
   end
 
   def accelerate(flames)
     return if @dead
-    @vel_x += Gosu::offset_x(@angle, 0.5)
-    @vel_y += Gosu::offset_y(@angle, 0.5)
-
-    flames << Flame.new( @x - Gosu::offset_x(@angle, @image.width/2) , @y - Gosu::offset_y(@angle, @image.height/2)  , 0 , 0 )
+    if rand(@hp.percent - 10..@hp.percent) <= rand(0..50)
+      if @last_e_f > 120
+        @@engine_fail[rand(@@engine_fail.size)].play
+        @last_e_f = 0
+      end
+      @last_e_f += 1
+    else
+      
+      @vel_x += Gosu::offset_x(@angle, 0.5)
+      @vel_y += Gosu::offset_y(@angle, 0.5)
+      
+      flames << Flame.new( @x - Gosu::offset_x(@angle, @image.width/2) , @y - Gosu::offset_y(@angle, @image.height/2)  , 0 , 0 )
+    end
   end
 
   def fire(balls, time)
@@ -124,22 +147,26 @@ class Player
     @x %= $width
     @y %= $height
 
+    @last_e_f += 1
+
     @vel_x *= 0.95
     @vel_y *= 0.95
   end
 
   def draw
     if @dead
-       @@exploded.draw_rot(@x, @y, 1, 0)
+      @@exploded.draw_rot(@x, @y, 1, @angle)
+      @parts.each{|s| s.draw} if @parts != nil
     else
       @image.draw_rot(@x, @y, Z_PLAYER, @angle)
     end
   end
 
-  def self.set_img(img1, img2, fire_sound, explode_sound)
+  def self.set_img(img1, img2, fire_sound, explode_sound , e_f)
     @@img = img1
     @@exploded = img2
     @@fire_sound = fire_sound
     @@explode_sound = explode_sound
+    @@engine_fail = e_f
   end
 end

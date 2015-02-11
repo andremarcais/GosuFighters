@@ -72,7 +72,7 @@ class Missil
   end
 
   def self.set_img(window , explode_sound)
-    @@img = Gosu::Image.new(window, "Missil.png", false)
+    @@img = Gosu::Image.new(window, "media/imgs/Missil.png", false)
     @@explode_sound = explode_sound
   end
 end

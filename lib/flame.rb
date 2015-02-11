@@ -13,7 +13,7 @@ class Flame
 
   def self.set_img(window)
     @@img = [
-             Gosu::Image.new(window, "flame.png" , false)
+             Gosu::Image.new(window, "media/imgs/flame.png" , false)
             ]
   end
 

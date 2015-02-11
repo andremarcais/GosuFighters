@@ -28,6 +28,6 @@ class Explode
   
   def self.set_data(w, e)
     @@explode_sound = e
-    @@img_set = Gosu::Image.load_tiles(w , "Explosion.png" , 50 , 50 , false) 
+    @@img_set = Gosu::Image.load_tiles(w , "media/imgs/Explosion.png" , 50 , 50 , false) 
   end
 end

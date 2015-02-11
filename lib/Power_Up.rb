@@ -24,7 +24,7 @@ attr_reader :x , :y
 
     @vx *= 0.99
     @vy *= 0.99
-    @rot = (@rot + 0.25) % 360
+    @rot = (@rot + 1) % 360
   end
   
   def draw
@@ -43,17 +43,17 @@ attr_reader :x , :y
   end
 
   def self.set_img(window)
-    @@collect = Gosu::Sample.new(window , "Collect_thing.ogg")
+    @@collect = Gosu::Sample.new(window , "media/sounds/Collect_thing.ogg")
     @@imgs = [
-              Gosu::Image.new(window , "Health Power Up.png" , false),
-              Gosu::Image.new(window , "Amo Power Up.png" , false),
-              Gosu::Image.new(window , "Shield Power Up.png" , false),
-              Gosu::Image.new(window , "Missil Power Up.png" , false),
+              Gosu::Image.new(window , "media/imgs/Health Power Up.png" , false),
+              Gosu::Image.new(window , "media/imgs/Amo Power Up.png" , false),
+              Gosu::Image.new(window , "media/imgs/Shield Power Up.png" , false),
+              Gosu::Image.new(window , "media/imgs/Missil Power Up.png" , false),
              ]
     @@shine = [
-               Gosu::Image.new(window , "Shine1.png" , false),
-               Gosu::Image.new(window , "Shine2.png" , false),
-               Gosu::Image.new(window , "Shine3.png" , false),
+               Gosu::Image.new(window , "media/imgs/Shine1.png" , false),
+               Gosu::Image.new(window , "media/imgs/Shine2.png" , false),
+               Gosu::Image.new(window , "media/imgs/Shine3.png" , false),
               ]
   end
 
