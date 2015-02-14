@@ -1,6 +1,6 @@
 #! /usr/bin/env ruby
 
-$: << "."
+$: << "../lib"
 
 require 'gosu'
 require 'player'
@@ -12,6 +12,8 @@ require 'flame'
 require 'Explosion'
 require 'Missil'
 require 'Accessory'
+require 'Powerup_EX'
+require 'Tag'
 
 $width = Gosu::screen_width
 $height = Gosu::screen_height
@@ -24,6 +26,8 @@ class GameWindow < Gosu::Window
     super($width, $height, true)
     self.caption = "Future Coliseum"
 
+    @miss_icon = Gosu::Image.new(self, "media/imgs/Missil_Icon.png" , false)
+    
     @bg = Gosu::Image.new(self, "media/imgs/Horse Head Nebula.jpg", true)
     @scale_x = $width.to_f/@bg.width
     @scale_y = $height.to_f/@bg.height
@@ -32,7 +36,7 @@ class GameWindow < Gosu::Window
     @p1_amo = HpBar.new(self, "media/imgs/Amo_Bar.png", 14 , 14+@p1_hp.height, false, true)
     @p1_shield = HpBar.new(self, "media/imgs/Shield_bar.png", 14 , (@p1_hp.height/2)+14+@p1_hp.height, false)
     
-    @p1 = Player.new(self, "media/imgs/Starfighter1.png", @p1_hp, @p1_amo , @p1_shield)
+    @p1 = Player.new(self, "media/imgs/Starfighter1.png", @p1_hp, @p1_amo , @p1_shield , Tag.new( @miss_icon , 0 , 14 , @p1_hp.height + @p1_amo.height + @p1_shield.height + 4 , Gosu::Font.new(self , Gosu::default_font_name , 25)))
     @p1.warp($width / 3, $height / 2)
     @p1_left = char_to_button_id("a")
     @p1_right = char_to_button_id("d")
@@ -44,7 +48,7 @@ class GameWindow < Gosu::Window
     @p2_amo = HpBar.new(self, "media/imgs/Amo_Bar.png", self.width - 14 , 14+@p1_hp.height , true , true)
     @p2_shield = HpBar.new(self, "media/imgs/Shield_bar.png", self.width - 14 , (@p1_hp.height/2)+14+@p1_hp.height, true)
 
-    @p2 = Player.new(self, "media/imgs/Starfighter2.png", @p2_hp, @p2_amo, @p2_shield)
+    @p2 = Player.new(self, "media/imgs/Starfighter2.png", @p2_hp, @p2_amo, @p2_shield , Tag.new( @miss_icon , 0 , (self.width - 14) - @miss_icon.width , @p2_hp.height + @p2_amo.height + @p2_shield.height + 4 , Gosu::Font.new(self , Gosu::default_font_name , 25)))
     @p2.warp(2 * $width / 3, $height / 2)
     @p2_left = Gosu::KbLeft
     @p2_right = Gosu::KbRight
@@ -59,8 +63,11 @@ class GameWindow < Gosu::Window
                    [
                     Gosu::Sample.new(self, "media/sounds/engine_fail.ogg"),
                     Gosu::Sample.new(self, "media/sounds/eg2.ogg"),
-                    Gosu::Sample.new(self, "media/sounds/eg3.ogg")
-                   ])
+                    Gosu::Sample.new(self, "media/sounds/eg3.ogg"),
+                   ], 
+                   Gosu::Image.new(self, "media/imgs/Missil_Icon.png" , false),
+                   Gosu::Font.new(self , Gosu::default_font_name , 25)
+                   )
 
     Ball.set_img(Gosu::Image.new(self, "media/imgs/magic ball.png", false),
                  Gosu::Image.new(self, "media/imgs/lightning ball.png", false),
@@ -79,18 +86,21 @@ class GameWindow < Gosu::Window
     
     Accessory.set_data(self)
 
+    Powerup_EX.set_data(self)
+
     @balls = []
     @power_ups = []
     @flames = []
     @boom = []
     @missils = []
     @stuff = []
-
+    
     @time = Gosu::milliseconds
   end
 
   def update
     @time = Gosu::milliseconds
+    
     @balls.reject!{|b| @p1.hit(b, @boom , @stuff) || @p2.hit(b, @boom , @stuff) || @missils.any?{|m| m.hit(b, @boom) } || b.move(@time) }
     @power_ups.reject!{|b| @p1.catch(b) || @p2.catch(b) }
     @missils.reject!{|m|
@@ -108,7 +118,7 @@ class GameWindow < Gosu::Window
       end
     }
 
-    @stuff.each{|s| s.move}
+    @stuff.each{|s| s.move(@flames)}
     @boom.reject!{|b| b.update}
 
     @p1.turn_left if button_down? @p1_left
@@ -144,13 +154,13 @@ class GameWindow < Gosu::Window
         @power_ups << @r_ship.r_drop
       end
     end
-    @power_ups.each{ |pu| pu.move }
+    @power_ups.each{ |pu| pu.move(@p1 , @p2) }
     @flames.reject!{|f| f.update }
   end
   
   def draw
-    @p1.draw                  
-    @p2.draw
+    @p1.draw(@flames)                  
+    @p2.draw(@flames)
     @p1_hp.draw
     @p2_hp.draw
     @p1_amo.draw

@@ -1,22 +1,27 @@
 class HpBar
 #  def initialize(window, path1, path2, path3, x , y)
-  attr_reader :percent
+  attr_reader :percent , :height , :right
   def initialize(window, path, x , y, right , clip = false, percent = 100.0)
     @window = window
     @x, @y = x, y
     @clip = clip
     @percent = percent
     @image = Gosu::Image.new(window, path, false)
-    @x -= @image.width if right
+    @right = right
+    @x -= width if right
+    @height = @image.height
   end
 
   def draw
+    w = @image.width * @percent/100
+    x = @x
+    x += width - w if @right
     if @clip
-      @window.clip_to(@x , @y , @image.width * @percent/100, @image.height) {
+      @window.clip_to(x , @y , w , @image.height) {
         @image.draw(@x, @y, 1, 1, Z_BAR)
       }
     else
-      @image.draw(@x, @y, 1, @percent/100, Z_BAR)
+      @image.draw(x , @y, 1, @percent/100, Z_BAR)
     end
   end
 

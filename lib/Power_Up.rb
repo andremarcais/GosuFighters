@@ -1,5 +1,5 @@
 class Power_up
-attr_reader :x , :y
+  attr_reader :x , :y
 
   def initialize (x , y)
     @rot = rand(360)
@@ -16,7 +16,7 @@ attr_reader :x , :y
     @@imgs[@type].width/2
   end
   
-  def move
+  def move(*args)
     @x += @vx
     @y += @vy
     @x %= $width

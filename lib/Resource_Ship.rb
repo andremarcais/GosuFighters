@@ -41,7 +41,11 @@ class R_Ship
   end
 
   def r_drop
-    Power_up.new(@x , @y)
+    if rand(0..50) == 1
+      Powerup_EX.new(@x , @y)
+    else
+      Power_up.new(@x , @y)
+    end   
   end
 
   def self.set_img(image)

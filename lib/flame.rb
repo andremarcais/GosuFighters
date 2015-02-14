@@ -1,12 +1,13 @@
 class Flame
   MAX_AGE = 30
   attr_reader :age
-  def initialize( x , y , vy , vx)
+  def initialize( x , y , vy , vx , z = Z_BAR)
     @angle = 0.0
     @vel_x = vx
     @vel_y = vy
     @x = x
     @y = y 
+    @z = z
     @age = 0
     @color = Gosu::Color.new(0xffffffff)
   end
@@ -32,7 +33,7 @@ class Flame
   end
 
   def draw
-    @@img[0].draw_rot(@x , @y , Z_BAR , @angle , 0.5 , 0.5 , 1 , 1 , @color)
+    @@img[0].draw_rot(@x , @y , @z , @angle , 0.5 , 0.5 , 1 , 1 , @color)
   end
 
 end

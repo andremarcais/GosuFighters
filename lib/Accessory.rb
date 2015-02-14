@@ -8,13 +8,18 @@ class Accessory
     @angle = rand(360)
     @type = type
     @img = @@img_set[type]
+    @time = 0
   end
   
-  def move
+  def move(flames)
     @x += @vx
     @y += @vy
     @x %= $width
     @y %= $height
+
+    @time += 1
+
+    flames << Flame.new( @x , @y , rand(-0.3..0.3) , rand(-0.3..0.3) , 3 ) if @time % rand(30..70) == 0
 
     @vx *= 0.99
     @vy *= 0.99

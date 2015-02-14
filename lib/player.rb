@@ -1,11 +1,7 @@
-
-
-
-
 class Player
   attr_reader :amo , :x , :y, :angle , :vel_x , :vel_y , :damage
 
-  def initialize(window, path, hp, amo , shield)
+  def initialize(window, path, hp, amo , shield , nb_miss)
     @img_set = Gosu::Image.load_tiles(window , path , 50 , 50 , false)
     @x = @y = @vel_x = @vel_y = @angle = 0.0
     @score = 0
@@ -15,12 +11,13 @@ class Player
     @amo = amo
     @dead = false
     @shield = shield
-    @nb_missils = 0
+    @nb_missils = nb_miss
     @damage = 25
     @last_fire_missil = 0
     @last_e_f = 0
     @part_count = 0
     @parts = []
+    @timer = 0
     update_img
   end
 
@@ -133,7 +130,7 @@ class Player
   end
 
   def fire_missil(m , t , time)
-    if time - @last_fire_missil > 1000 && @nb_missils > 0 && !@dead
+    if time - @last_fire_missil > 1000 && @nb_missils.num > 0 && !@dead
       return if @nb_missils == 0
       @nb_missils -= 1
       m << Missil.new(self, t)
@@ -153,20 +150,28 @@ class Player
     @vel_y *= 0.95
   end
 
-  def draw
+  def draw(flames)
     if @dead
       @@exploded.draw_rot(@x, @y, 1, @angle)
       @parts.each{|s| s.draw} if @parts != nil
+      flames << Flame.new( @x - rand(-(@image.width/2)..@image.width)/2 , @y - rand(-(@image.width/2)..@image.width)/2 , rand(0.0..0.2) , rand(0.0..0.2) ) if @timer % rand(5..40) == 0
     else
       @image.draw_rot(@x, @y, Z_PLAYER, @angle)
     end
+    @timer += 1
+    @nb_missils.draw
+ #   @@missil_icon.draw($width - (@@missil_icon.width + 14) , @hp.height + @amo.height + @shield.height + 4 , Z_BAR)
+
+#    @@font.draw( "X #{@nb_missils}" , 14 + @@missil_icon.width , @hp.height + @amo.height + @shield.height + 4 , Z_BAR) 
   end
 
-  def self.set_img(img1, img2, fire_sound, explode_sound , e_f)
+  def self.set_img(img1, img2, fire_sound, explode_sound , e_f , mi , font)
     @@img = img1
     @@exploded = img2
     @@fire_sound = fire_sound
     @@explode_sound = explode_sound
     @@engine_fail = e_f
+#    @@missil_icon = mi
+    @@font = font
   end
 end
