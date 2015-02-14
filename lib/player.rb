@@ -1,5 +1,5 @@
 class Player
-  attr_reader :amo , :x , :y, :angle , :vel_x , :vel_y , :damage
+  attr_reader :amo , :x , :y, :angle , :vel_x , :vel_y , :damage , :dead
 
   def initialize(window, path, hp, amo , shield , nb_miss)
     @img_set = Gosu::Image.load_tiles(window , path , 50 , 50 , false)
