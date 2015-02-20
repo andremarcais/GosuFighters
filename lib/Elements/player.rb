@@ -12,12 +12,14 @@ class Player
     @dead = false
     @shield = shield
     @nb_missils = nb_miss
+#    @money = Tag.new( "media/imgs/Money_Icon.png" ,  0 , )
     @damage = 25
     @last_fire_missil = 0
     @last_e_f = 0
     @part_count = 0
     @parts = []
     @timer = 0
+#    @name = name
     update_img
   end
 
@@ -145,9 +147,16 @@ class Player
     @y %= $height
 
     @last_e_f += 1
+    
+    if !@dead
+      @vel_x *= 0.95
+      @vel_y *= 0.95
+    end
 
-    @vel_x *= 0.95
-    @vel_y *= 0.95
+    if @dead
+      @vel_x *= 0.99
+      @vel_y *= 0.99
+    end
   end
 
   def draw(flames)
@@ -163,6 +172,14 @@ class Player
  #   @@missil_icon.draw($width - (@@missil_icon.width + 14) , @hp.height + @amo.height + @shield.height + 4 , Z_BAR)
 
 #    @@font.draw( "X #{@nb_missils}" , 14 + @@missil_icon.width , @hp.height + @amo.height + @shield.height + 4 , Z_BAR) 
+  end
+
+  def update
+    open("", "w") { |f|
+      f.puts "#{name}"
+      f.puts "#{subject}"
+      f.puts "#{like}"
+    }
   end
 
   def self.set_img(img1, img2, fire_sound, explode_sound , e_f , mi , font)

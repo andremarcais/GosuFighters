@@ -1,11 +1,14 @@
 #! /usr/bin/env ruby
 
-$: << "./lib"
+$: << "./lib/Controls" << "./lib/Elements"
 
 require 'gosu'
 require 'Game'
 require 'Title_screen'
-
+require 'New Profile'
+require 'Button'
+require 'Text Input'
+require 'register'
 
 $width = Gosu::screen_width
 $height = Gosu::screen_height
