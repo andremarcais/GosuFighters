@@ -20,11 +20,11 @@ class Missil
   def damage; 25; end
   
   def turn_left
-    @angle -= 1
+    @angle -= 2.5
   end
   
   def turn_right
-    @angle += 1
+    @angle += 2.5
   end
   
   def move(flames)
@@ -40,10 +40,10 @@ class Missil
       
       @vel_x = Gosu::offset_x(@angle, @vel)
       @vel_y = Gosu::offset_y(@angle, @vel)
-      flames << Flame.new( @x - Gosu::offset_x(@angle, @@img.height/2) , @y - Gosu::offset_y(@angle, @@img.height/2)  , 0 , 0 )
+      flames << Flame.new( @x - Gosu::offset_x(@angle, @@img.height/2) , @y - Gosu::offset_y(@angle, @@img.height/2)  , rand(0.0..1.0)+(-@vel_y)/3 , rand(0.0..1.0)+(-@vel_x)/3 )
     else
-      @vel_x *= 0.95
-      @vel_y *= 0.95
+      @vel_x *= 0.99
+      @vel_y *= 0.99
     end
       
     @x += @vel_x

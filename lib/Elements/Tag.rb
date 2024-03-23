@@ -17,8 +17,8 @@ class Tag
     self
   end 
 
-  def draw
-    @img.draw(@x , @y , Z_BAR , 0.75 , 0.75)
+  def draw( size = 0.75 )
+    @img.draw(@x , @y , Z_BAR , size , size)
     @font.draw( "#{@num} X" , @x , @y , Z_BAR + 1)
   end
   

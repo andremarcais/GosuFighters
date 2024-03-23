@@ -1,9 +1,9 @@
 class Power_up
   attr_reader :x , :y
 
-  def initialize (x , y)
+  def initialize (x , y , type = rand(@@imgs.size))
     @rot = rand(360)
-    @type = rand(@@imgs.size)
+    @type = type
     @x = x
     @y = y
     @vx = rand(-3..3)
@@ -49,6 +49,7 @@ class Power_up
               Gosu::Image.new(window , "media/imgs/Amo Power Up.png" , false),
               Gosu::Image.new(window , "media/imgs/Shield Power Up.png" , false),
               Gosu::Image.new(window , "media/imgs/Missil Power Up.png" , false),
+              Gosu::Image.new(window , "media/imgs/Coin.png" , false)
              ]
     @@shine = [
                Gosu::Image.new(window , "media/imgs/Shine1.png" , false),

@@ -8,7 +8,8 @@ class Button
     if path != nil
       @image = Gosu::Image.new(@win , path , false)
     else
-      @image = Gosu::Image.from_text(@win , text , @@font , 25)
+      @image = Gosu::Image.from_text(@win , text , @@font.name , 25)
+      @text = text
     end
     @hovering = false
     @click = false
@@ -16,14 +17,19 @@ class Button
     @scale = scale
   end
   
-  def update
+  def update(text = nil)
     mx = @win.mouse_x
     my = @win.mouse_y
 
     @action[] if @click && !@win.button_down?(Gosu::MsLeft)
 
-    @hovering = my >= @y - @image.height * @scale && my < @y + @image.height * @scale && mx >= @x - @image.width * @scale && mx < @x + @image.width * @scale
+    @hovering = my >= @y - (@image.height/3) * @scale && my <@y+(@image.height/3) * @scale && mx >= @x - (@image.width/2) * @scale && mx < @x + (@image.width/2) * @scale
     @click = @hovering && @win.button_down?(Gosu::MsLeft)
+
+    if !text.nil? && text != @text
+      @image = Gosu::Image.from_text(@win , text , @@font.name , 25)
+      @text = text
+    end
   end
   
   def draw

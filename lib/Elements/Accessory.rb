@@ -31,7 +31,8 @@ class Accessory
   end
   
   def self.set_data(w)
-    @@img_set = Gosu::Image.load_tiles(w , "media/imgs/Ship Peices.png" , 31 , 28 , false)
+    @@img_set = Gosu::Image.load_tiles(w , "media/imgs/Ship Peices.png" , 31 , 28 , false) if $three_dimension == false
+    @@img_set = Gosu::Image.load_tiles(w , "media/imgs/Ship Peices (copy).png" , 31 , 28 , false) if $three_dimension == true
   end
   def self.nb_parts; @@img_set.size; end
 end

@@ -1,7 +1,8 @@
 class Player
-  attr_reader :amo , :x , :y, :angle , :vel_x , :vel_y , :damage , :dead
+  attr_reader :amo , :x , :y, :angle , :dead, :shield , :hp
+  attr_accessor :vel_x, :vel_y
 
-  def initialize(window, path, hp, amo , shield , nb_miss)
+  def initialize(window, path, hp, amo , shield , nb_miss , coins , player)
     @img_set = Gosu::Image.load_tiles(window , path , 50 , 50 , false)
     @x = @y = @vel_x = @vel_y = @angle = 0.0
     @score = 0
@@ -12,16 +13,40 @@ class Player
     @dead = false
     @shield = shield
     @nb_missils = nb_miss
-#    @money = Tag.new( "media/imgs/Money_Icon.png" ,  0 , )
-    @damage = 25
+    @coins = coins
     @last_fire_missil = 0
     @last_e_f = 0
     @part_count = 0
     @parts = []
     @timer = 0
-#    @name = name
+    @player = player
+    if player == 1
+      @profile = $profile_1
+      @data = $p1_data
+    else
+      @profile = $profile_2
+      @data = $p2_data
+    end
+    @damage = 1
+    if @profile != nil
+      inventory = @data["inventory"]
+      ship = @data["ships"][@data["ship"]]
+      p ship
+      p ship["hp"]
+      @hp.set(ship["hp"])
+      p ["hp", @hp]
+      @shield.set(ship["shield"])
+      p ship["shield"]
+      p ["shield", @shield]
+#      @amo.set(@data["ships"]["amo"])
+#      @damage = inventory["gun"][@data["ships"][@data["ship"]["gun"]]["damage"]
+      @coins.num = @data["coins"]
+    end
+    #    @name = name
     update_img
   end
+
+  def player; self; end
 
   def to_s
     "<Player #{@x} #{@y}>"
@@ -35,7 +60,7 @@ class Player
     @image = @img_set[@img_set.size - 1 - (@img_set.size * [@hp.percent, 99].min / 100.0).floor]
   end
 
-  def hit(b, boom = nil , parts = nil)
+  def hit(b, boom = nil , parts = nil , drops = nil , nock_x = 0 , nock_y = 0)
     if b.player != self && Gosu::distance(@x, @y, b.x, b.y) < @image.width/2  + b.radius && !@dead
       boom << Explode.new(b.x + b.radius  , b.y + b.radius , 0.5 , 1 , 0) if !boom.nil?
       @hp.sub([b.damage-@shield.percent/25, 0].max)
@@ -47,6 +72,9 @@ class Player
         boom << Explode.new(@x , @y , 2 , 4 , 0) if !boom.nil?
         Accessory.nb_parts.times { |part_count|
           parts << Accessory.new(@x , @y , @vel_x + rand(1.0..3.0) , @vel_y + rand(1.0..3.0) , part_count)
+        }
+        rand(10..35).times { |coin_count|
+          drops << Power_up.new( @x , @y , 4)
         }
       end
       update_img
@@ -72,13 +100,15 @@ class Player
         @shield.add(25)
       elsif p.type == 3
         @nb_missils += 1
+      elsif p.type == 4
+        @coins += 25
       end
       return true
     else
       return false
     end
   end
-    
+  
   def warp(x, y)
     @x, @y = x, y
   end
@@ -91,7 +121,7 @@ class Player
 
   def turn_right
     if @hp.percent > 0
-        @angle += 3.5
+      @angle += 3.5
     end
   end
 
@@ -108,7 +138,7 @@ class Player
       @vel_x += Gosu::offset_x(@angle, 0.5)
       @vel_y += Gosu::offset_y(@angle, 0.5)
       
-      flames << Flame.new( @x - Gosu::offset_x(@angle, @image.width/2) , @y - Gosu::offset_y(@angle, @image.height/2)  , 0 , 0 )
+      flames << Flame.new( @x - Gosu::offset_x(@angle, @image.width/2) , @y - Gosu::offset_y(@angle, @image.height/2)  , rand(0.0..1.0)+(-@vel_y)/3 , rand(0.0..1.0)+(-@vel_x)/3 )
     end
   end
 
@@ -140,6 +170,10 @@ class Player
     end
   end
 
+  def explode_sound
+    @@explode_sound.play if @vel_x >= 0.1 || @vel_y >= 0.1
+  end
+
   def move
     @x += @vel_x
     @y += @vel_y
@@ -153,10 +187,9 @@ class Player
       @vel_y *= 0.95
     end
 
-    if @dead
-      @vel_x *= 0.99
-      @vel_y *= 0.99
-    end
+    j    if @dead
+    @vel_x *= 0.975
+    @vel_y *= 0.975
   end
 
   def draw(flames)
@@ -169,17 +202,18 @@ class Player
     end
     @timer += 1
     @nb_missils.draw
- #   @@missil_icon.draw($width - (@@missil_icon.width + 14) , @hp.height + @amo.height + @shield.height + 4 , Z_BAR)
+    #   @@missil_icon.draw($width - (@@missil_icon.width + 14) , @hp.height + @amo.height + @shield.height + 4 , Z_BAR)
 
-#    @@font.draw( "X #{@nb_missils}" , 14 + @@missil_icon.width , @hp.height + @amo.height + @shield.height + 4 , Z_BAR) 
+    #    @@font.draw( "X #{@nb_missils}" , 14 + @@missil_icon.width , @hp.height + @amo.height + @shield.height + 4 , Z_BAR) 
   end
 
   def update
-    open("", "w") { |f|
-      f.puts "#{name}"
-      f.puts "#{subject}"
-      f.puts "#{like}"
-    }
+    if @profile != nil
+      @data["coins"] = @coins.num
+      $p1_data = @data if @player == 1
+      $p2_data = @data if @player == 2
+      @data.save_name(@profile)
+    end
   end
 
   def self.set_img(img1, img2, fire_sound, explode_sound , e_f , mi , font)
@@ -188,7 +222,7 @@ class Player
     @@fire_sound = fire_sound
     @@explode_sound = explode_sound
     @@engine_fail = e_f
-#    @@missil_icon = mi
+    #    @@missil_icon = mi
     @@font = font
   end
 end

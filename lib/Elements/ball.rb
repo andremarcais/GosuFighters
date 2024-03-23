@@ -9,10 +9,10 @@ class Ball
     @factor * @@img.width/2
   end
 
-  def initialize(x ,y, vx, vy, time, player)
+  def initialize(x ,y, vx, vy, time, player , damage = 0)
     @x, @y, @vx, @vy = x, y, vx, vy
     @creation_time = time
-    @factor = 1
+    @factor = damage
     @age = 0
     @player = player
     @@fire_sound.play

@@ -31,6 +31,7 @@ class HpBar
   end
 
   def set(x)
+    p ["set", self, @percent]
     @percent = x
   end
 
